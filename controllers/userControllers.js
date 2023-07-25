@@ -169,12 +169,21 @@ const getUserOrders = async (req, res) => {
 // Fetch Admin Orders
 const getAdminOrders = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const itemsPerPage = parseInt(req.query.itemsPerPage) || 5;
+
+    const totalOrders = await Order.countDocuments({});
+
+    const totalPages = Math.ceil(totalOrders / itemsPerPage);
+
     const orders = await Order.find({})
       .populate("products", "-photo")
       .populate("buyer", "name")
-      .sort({ createdAt: "-1" });
+      .sort({ createdAt: "-1" })
+      .skip((page - 1) * itemsPerPage)
+      .limit(itemsPerPage);
 
-    if (!orders) {
+    if (!orders.length) {
       return res.send({
         success: false,
         message: "No Orders Found!",
@@ -184,6 +193,8 @@ const getAdminOrders = async (req, res) => {
     return res.send({
       success: true,
       orders,
+      totalPages,
+      currentPage: page,
     });
   } catch (error) {
     res.send({
