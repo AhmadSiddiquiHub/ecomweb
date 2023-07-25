@@ -18,7 +18,6 @@ connectDB();
 // middlewares
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "./client/dist")));
 
 // Routes
 app.use("/api", userRoutes);
@@ -27,6 +26,7 @@ app.use("/api/product", productRoutes);
 
 const PORT = process.env.PORT || 8000;
 
+app.use(express.static(path.join(__dirname, "./client/dist")));
 app.use("*", function (req, res) {
   res.sendFile(path.join(__dirname, "./client/dist/index.html"));
 });
